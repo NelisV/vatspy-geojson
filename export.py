@@ -6,8 +6,9 @@ with open('output/firboundaries.geojson') as json_file:
     for item in data['features']:
         coordinates = item['geometry']['coordinates'][0][0]
         feature = item['properties']
-        headerline ='{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n'.format(feature['ICAO'], feature['IsOceanic'], feature['IsExtension'], feature['PointCount'], feature['MinLat'], feature['MinLon'], feature['MaxLat'], feature['MaxLon'], feature['CenterLat'], feature['CenterLon'])
+        headerline ='{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n'.format(feature['ICAO'], feature['IsOceanic'], feature['IsExtension'], len(coordinates), feature['MinLat'], feature['MinLon'], feature['MaxLat'], feature['MaxLon'], feature['CenterLat'], feature['CenterLon'])
         print(headerline)
+        print(feature['PointCount'])
         f.write(headerline)
         for coord in coordinates:
             coordline = '{}|{}\n'.format(coord[1], coord[0])
