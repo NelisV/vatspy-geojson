@@ -18,4 +18,4 @@ To convert GeoJSON to firboundaries.dat:
 3. enter filename for input file (default is firboundaries.geojson)
 3. firboundaries.dat created in /export/
 
-- Make sure to only upload the sectors you edited.
+- Make sure to only update/change the sectors you edited.
