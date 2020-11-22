@@ -2,7 +2,11 @@ import json
 
 vertexcnt = 0
 
-with open('output/firboundaries.geojson') as json_file:
+print('Enter filename.. (GeoJSON)')
+filename = input()
+path = 'output/{}'.format(filename)
+
+with open(path) as json_file:
     data = json.load(json_file)
     f = open('export/FIRBoundaries.dat', 'w')
     for item in data['features']:
