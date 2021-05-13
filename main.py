@@ -64,24 +64,25 @@ def geojson_writer(features):
     print(print_string)
 
 
-with open(file_name) as fir_file:
-    csv_reader = csv.reader(fir_file, delimiter='|')
-    for row in csv_reader:
-        if len(row) > 2:
-            if airspace_count > 0:
-                fir_list.append(airspace_close())
-            fir_header(row)
-        else:
-            firpoint_list = airspace_pnt(firpoint_list, row)
-    fir_list.append(airspace_close())
+if __name__ == "__main__":
+    with open(file_name) as fir_file:
+        csv_reader = csv.reader(fir_file, delimiter='|')
+        for row in csv_reader:
+            if len(row) > 2:
+                if airspace_count > 0:
+                    fir_list.append(airspace_close())
+                fir_header(row)
+            else:
+                firpoint_list = airspace_pnt(firpoint_list, row)
+        fir_list.append(airspace_close())
 
-features = []
-airspace_count = 0
-for item in fir_list:
-    airspace_count += 1
-    filename = 'firboundaries'
-    section = [12582, [
-        {'type': 'Feature', 'properties': {'id': airspace_count, 'ICAO': item['ICAO'], 'IsOceanic': item['IsOceanic'], 'IsExtension': item['IsExtension'], 'PointCount': item['PointCount'], 'MinLat': item['MinLat'], 'MinLon': item['MinLon'], 'MaxLat': item['MaxLat'], 'MaxLon': item['MaxLon'], 'CenterLat': item['CenterLat'], 'CenterLon': item['CenterLon']}, 'geometry': {'type': 'MultiPolygon', 'coordinates': [[item['Coordinates']]]}}], filename]
-    features.append(section)
+    features = []
+    airspace_count = 0
+    for item in fir_list:
+        airspace_count += 1
+        filename = 'firboundaries'
+        section = [12582, [
+            {'type': 'Feature', 'properties': {'id': airspace_count, 'ICAO': item['ICAO'], 'IsOceanic': item['IsOceanic'], 'IsExtension': item['IsExtension'], 'PointCount': item['PointCount'], 'MinLat': item['MinLat'], 'MinLon': item['MinLon'], 'MaxLat': item['MaxLat'], 'MaxLon': item['MaxLon'], 'CenterLat': item['CenterLat'], 'CenterLon': item['CenterLon']}, 'geometry': {'type': 'MultiPolygon', 'coordinates': [[item['Coordinates']]]}}], filename]
+        features.append(section)
 
-geojson_writer(features)
+    geojson_writer(features)
