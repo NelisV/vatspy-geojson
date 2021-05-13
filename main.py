@@ -6,8 +6,7 @@ fir_list = []
 firpoint_list = None
 firheader_list = None
 # file_name = 'source/FIRBoundaries_test.dat'
-file_name = 'source/FIRBoundaries.dat'
-
+# file_name = 'source/FIRBoundaries.dat'
 
 
 def fir_header(header):
@@ -36,9 +35,9 @@ def airspace_close():
     return fir_dict
 
 
-def geojson_writer(features):
+def geojson_writer(features, output_dir):
     '''Create GeoJSON Header'''
-
+    print(output_dir)
     basedict = {}
     crsdict = {}
     propertydict = {}
@@ -55,16 +54,17 @@ def geojson_writer(features):
     basedict['features'] = feature_list
 
     '''write to text file'''
-    name = section[2]
-    outputfile = open('output/{}.geojson'.format(name), 'w')
+    print(output_dir)
+    outputfile = open(output_dir, 'w')
     outputfile.write(json.dumps(basedict, indent=4))
     # print(json.dumps(basedict, indent=4))
     outputfile.close()
-    print_string = 'GeoJSON saved to {}.geojson'.format(name)
+    print_string = 'GeoJSON saved to {}'.format(output_dir)
     print(print_string)
 
 
-if __name__ == "__main__":
+def dat_import(file_name, output_dir):
+    global airspace_count, firpoint_list
     with open(file_name) as fir_file:
         csv_reader = csv.reader(fir_file, delimiter='|')
         for row in csv_reader:
@@ -85,4 +85,4 @@ if __name__ == "__main__":
             {'type': 'Feature', 'properties': {'id': airspace_count, 'ICAO': item['ICAO'], 'IsOceanic': item['IsOceanic'], 'IsExtension': item['IsExtension'], 'PointCount': item['PointCount'], 'MinLat': item['MinLat'], 'MinLon': item['MinLon'], 'MaxLat': item['MaxLat'], 'MaxLon': item['MaxLon'], 'CenterLat': item['CenterLat'], 'CenterLon': item['CenterLon']}, 'geometry': {'type': 'MultiPolygon', 'coordinates': [[item['Coordinates']]]}}], filename]
         features.append(section)
 
-    geojson_writer(features)
+    geojson_writer(features, output_dir)

@@ -12,7 +12,7 @@ with open(path) as json_file:
     for item in data['features']:
         coordinates = item['geometry']['coordinates'][0][0]
         feature = item['properties']
-        headerline ='{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n'.format(feature['ICAO'], feature['IsOceanic'], feature['IsExtensio'], len(coordinates), feature['MinLat'], feature['MinLon'], feature['MaxLat'], feature['MaxLon'], feature['CenterLat'], feature['CenterLon'])
+        headerline = '{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n'.format(feature['ICAO'], feature['IsOceanic'], feature['IsExtensio'], len(coordinates), round(float(feature['MinLat']), 6), round(float(feature['MinLon']), 6), round(float(feature['MaxLat']), 6), round(float(feature['MaxLon']), 6), round(float(feature['CenterLat']), 6), round(float(feature['CenterLon']), 6))
         print(headerline)
         print(feature['PointCount'])
 
