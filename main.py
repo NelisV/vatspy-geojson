@@ -1,88 +1,289 @@
-import csv
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
+from import_functions import dat_import
+from export_functions import dat_export
 import json
+import webbrowser
 
-airspace_count = 0
-fir_list = []
-firpoint_list = None
-firheader_list = None
-# file_name = 'source/FIRBoundaries_test.dat'
-# file_name = 'source/FIRBoundaries.dat'
-
-
-def fir_header(header):
-    global airspace_count, firheader_list
-    airspace_count += 1
-    firheader_list = header
+load_dat_file = None
+load_gj_file = None
+save_gj_file = None
+save_dat_file = None
+settings = None
 
 
-def airspace_pnt(firpoint_list, point):
-    coords = [float(point[0]), float(point[1])]
-    coords.reverse()
-    point = [coords]
-    if firpoint_list == None:
-        firpoint_list = point
+# file explorer window
+def load_dat():
+    global load_dat_file
+    local_filename = filedialog.askopenfilename(initialdir=settings['dat_dir'],
+                                                title='Select a File',
+                                                filetypes=(('FIRBoundaries.dat', '*.dat*'),))
+    print(load_dat_file)
+    if local_filename:
+        load_dat_file = local_filename
+        file_info.configure(text=load_dat_file)
+        config('W')
+        switch_btn_state('A', 1)
     else:
-        firpoint_list = firpoint_list + point
-    return firpoint_list
+        file_info.configure(text=load_dat_file)
 
 
-def airspace_close():
-    global firheader_list, firpoint_list
-    header = firheader_list + [firpoint_list]
-    keys = ['ICAO', 'IsOceanic', 'IsExtension', 'PointCount', 'MinLat', 'MinLon', 'MaxLat', 'MaxLon', 'CenterLat', 'CenterLon', 'Coordinates']
-    fir_dict = dict(zip(keys, header))
-    firpoint_list = None
-    return fir_dict
+def load_gj():
+    global load_gj_file
+    local_filename = filedialog.askopenfilename(initialdir=settings['gj_dir'],
+                                                title='Select a File',
+                                                filetypes=(('FIRBoundaries GeoJSON', '*.GeoJSON*'),))
+    print(load_gj_file)
+    if local_filename:
+        load_gj_file = local_filename
+        file_info2.configure(text=load_gj_file)
+        config('W')
+        switch_btn_state('C', 1)
+    else:
+        file_info2.configure(text=load_gj_file)
 
 
-def geojson_writer(features, output_dir):
-    '''Create GeoJSON Header'''
-    print(output_dir)
-    basedict = {}
-    crsdict = {}
-    propertydict = {}
-    feature_list = []
-    basedict['type'] = "FeatureCollection"
-    basedict['name'] = ''
-    propertydict['name'] = "urn:ogc:def:crs:OGC:1.3:CRS84"
-    crsdict['type'] = "name"
-    crsdict['properties'] = propertydict
-    basedict['crs'] = crsdict
-    for section in features:
-        feature_list = feature_list + section[1]
+def save_gj():
+    global save_gj_file
+    local_dirname = filedialog.asksaveasfilename(
+        defaultextension='.geojson', filetypes=(('FIRBoundaries GeoJSON', '*.GeoJSON*'),),
+        initialdir=settings['dat_dir'],
+        title='Save As')
 
-    basedict['features'] = feature_list
-
-    '''write to text file'''
-    print(output_dir)
-    outputfile = open(output_dir, 'w')
-    outputfile.write(json.dumps(basedict, indent=4))
-    # print(json.dumps(basedict, indent=4))
-    outputfile.close()
-    print_string = 'GeoJSON saved to {}'.format(output_dir)
-    print(print_string)
+    if local_dirname:
+        save_gj_file = local_dirname
+        file_info3.configure(text=save_gj_file)
+        if load_dat_file:
+            switch_btn_state('B', 1)
+    else:
+        file_info3.configure(text=save_gj_file)
 
 
-def dat_import(file_name, output_dir):
-    global airspace_count, firpoint_list
-    with open(file_name) as fir_file:
-        csv_reader = csv.reader(fir_file, delimiter='|')
-        for row in csv_reader:
-            if len(row) > 2:
-                if airspace_count > 0:
-                    fir_list.append(airspace_close())
-                fir_header(row)
-            else:
-                firpoint_list = airspace_pnt(firpoint_list, row)
-        fir_list.append(airspace_close())
+def save_dat():
+    global save_dat_file
+    local_dirname = filedialog.asksaveasfilename(
+        defaultextension='.dat', filetypes=(('FIRBoundaries.dat', '*.dat*'),),
+        initialdir=settings['gj_dir'],
+        title='Save As')
 
-    features = []
-    airspace_count = 0
-    for item in fir_list:
-        airspace_count += 1
-        filename = 'firboundaries'
-        section = [12582, [
-            {'type': 'Feature', 'properties': {'id': airspace_count, 'ICAO': item['ICAO'], 'IsOceanic': item['IsOceanic'], 'IsExtension': item['IsExtension'], 'PointCount': item['PointCount'], 'MinLat': item['MinLat'], 'MinLon': item['MinLon'], 'MaxLat': item['MaxLat'], 'MaxLon': item['MaxLon'], 'CenterLat': item['CenterLat'], 'CenterLon': item['CenterLon']}, 'geometry': {'type': 'MultiPolygon', 'coordinates': [[item['Coordinates']]]}}], filename]
-        features.append(section)
+    if local_dirname:
+        save_dat_file = local_dirname
+        file_info7.configure(text=save_dat_file)
+        if load_gj_file:
+            switch_btn_state('D', 1)
+    else:
+        file_info7.configure(text=save_dat_file)
 
-    geojson_writer(features, output_dir)
+
+# action to parse .dat file function
+def parse_dat():
+    try:
+        dat_import(load_dat_file, save_gj_file)
+        description4 = 'file saved to: ' + save_gj_file
+        des_text4 = tk.Label(tab1, text=description4)
+        des_text4.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    except:
+        print('parse error')
+        description4 = 'Parsing error, check if you used a valid FIRBoundaries file'
+        des_text4 = tk.Label(tab1, text=description4)
+        des_text4.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+
+# action to parse .dat file function
+def parse_gj():
+    try:
+        dat_export(load_gj_file, save_dat_file)
+        description8 = 'file saved to: ' + save_dat_file
+        des_text8 = tk.Label(tab2, text=description8)
+        des_text8.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    except:
+        print('parse error')
+        description8 = 'Parsing error, check if you used a valid FIRBoundaries geojson file'
+        des_text8 = tk.Label(tab2, text=description8)
+        des_text8.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+
+# action to switch button lock state
+def switch_btn_state(button, state):
+    if button == 'A':
+        if state == 0:
+            button_file3['state'] = tk.DISABLED
+        if state == 1:
+            button_file3['state'] = tk.NORMAL
+    if button == 'B':
+        if state == 0:
+            button_datimport['state'] = tk.DISABLED
+        if state == 1:
+            button_datimport['state'] = tk.NORMAL
+    if button == 'C':
+        if state == 0:
+            button_file7['state'] = tk.DISABLED
+        if state == 1:
+            button_file7['state'] = tk.NORMAL
+    if button == 'D':
+        if state == 0:
+            button_datimport2['state'] = tk.DISABLED
+        if state == 1:
+            button_datimport2['state'] = tk.NORMAL
+
+
+# create config file if it does not exist
+def create_config():
+    data = {
+        'dat_dir': '/',
+        'gj_dir': '/'
+    }
+    try:
+        outfile = open('config.json', 'r')
+        print('file found')
+        with open('config.json') as f:
+            data2 = json.load(f)
+            print(data2['dat_dir'])
+    except IOError:
+        print('File not accessible')
+        with open('config.json', 'w') as outfile:
+            json.dump(data, outfile)
+    finally:
+        outfile.close()
+
+
+# configuration saver/loader
+def config(mode='R'):
+    global settings
+    if mode == 'W':
+
+        if load_dat_file:
+            defaultdir = load_dat_file.rsplit('/', 1)[0] + '/'
+            settings['dat_dir'] = defaultdir
+
+            with open('config.json', 'w') as outfile:
+                json.dump(settings, outfile)
+
+        elif load_gj_file:
+            defaultdir = load_gj_file.rsplit('/', 1)[0] + '/'
+            settings['gj_dir'] = defaultdir
+
+            with open('config.json', 'w') as outfile:
+                json.dump(settings, outfile)
+
+    elif mode == 'R':
+        with open('config.json', 'r') as readfile:
+            settings = json.load(readfile)
+
+
+def callback(url):
+    webbrowser.open_new(url)
+
+
+# ui formatting
+col_span = 2
+sticky = tk.NW
+
+
+if __name__ == "__main__":
+    # Load config file
+    create_config()
+    config()
+
+    # First line
+    root = tk.Tk()
+
+    # configure root
+    root.title('VAT-Spy GeoJSON')
+    root.geometry('500x400')
+    root.columnconfigure(1, weight=1)
+    root.rowconfigure(2, weight=1)
+    root.iconbitmap('vattech.ico')
+
+    # tab control
+    tabControl = ttk.Notebook(root)
+    tab1 = ttk.Frame(tabControl)
+    tab2 = ttk.Frame(tabControl)
+    tab3 = ttk.Frame(tabControl)
+
+    tabControl.add(tab1, text='DAT to GeoJSON')
+    tabControl.add(tab2, text='GeoJSON to DAT')
+    tabControl.add(tab3, text='About')
+
+    tabControl.pack(expand=1, fill="both")
+
+    # --tab1--
+    tab1.columnconfigure(1, weight=1)
+
+    # load firboundaries.dat file
+    description = 'Browse to a valid VAT-Spy FIRBoundaries.dat file'
+    des_text = tk.Label(tab1, text=description)
+    des_text.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    button_file = tk.Button(tab1, text='Browse', width=10, command=load_dat)
+    button_file.grid(row=2, column=0, sticky=sticky, padx=5, pady=5)
+
+    file_info = tk.Label(tab1, text='No file selected')
+    file_info.grid(row=2, column=1, sticky=sticky, pady=5)
+
+    # select a geojson save location
+    description3 = 'GeoJSON save location'
+    des_text3 = tk.Label(tab1, text=description3)
+    des_text3.grid(row=3, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    button_file3 = tk.Button(tab1, text='Save As', width=10, command=save_gj, state=tk.DISABLED)
+    button_file3.grid(row=4, column=0, sticky=sticky, padx=5, pady=5)
+
+    file_info3 = tk.Label(tab1, text='No directory selected')
+    file_info3.grid(row=4, column=1, sticky=sticky, pady=5)
+
+    # parse button
+    button_datimport = tk.Button(tab1, text='Parse', width=10, command=parse_dat, state=tk.DISABLED)
+    button_datimport.grid(row=5, column=0, sticky=sticky, padx=5, pady=5)
+
+    # --tab2--
+    tab2.columnconfigure(1, weight=1)
+
+    # load geojson file
+    description1 = 'Browse to a valid GeoJSON containing FIR boundary data'
+    des_text1 = tk.Label(tab2, text=description1)
+    des_text1.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    button_file2 = tk.Button(tab2, text='Browse', width=10, command=load_gj)
+    button_file2.grid(row=2, column=0, sticky=sticky, padx=5, pady=5)
+
+    file_info2 = tk.Label(tab2, text='No file selected')
+    file_info2.grid(row=2, column=1, sticky=sticky, pady=5)
+
+    # select a .dat save location
+    description7 = 'FIRBoundaries.dat save location'
+    des_text7 = tk.Label(tab2, text=description7)
+    des_text7.grid(row=3, column=0, sticky=sticky, pady=5, columnspan=col_span)
+
+    button_file7 = tk.Button(tab2, text='Save As', width=10, command=save_dat, state=tk.DISABLED)
+    button_file7.grid(row=4, column=0, sticky=sticky, padx=5, pady=5)
+
+    file_info7 = tk.Label(tab2, text='No directory selected')
+    file_info7.grid(row=4, column=1, sticky=sticky, pady=5)
+
+    # parse button
+    button_datimport2 = tk.Button(tab2, text='Parse', width=10, command=parse_gj, state=tk.DISABLED)
+    button_datimport2.grid(row=5, column=0, sticky=sticky, padx=5, pady=5)
+
+    # --tab-- about
+    description5 = 'VAT-Spy - GeoJSON converter by NelisV'
+    des_text5 = tk.Label(tab3, text=description5)
+    des_text5.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=2)
+
+    description6 = 'Development - Alpha 2'
+    des_text6 = tk.Label(tab3, text=description6)
+    des_text6.grid(row=2, column=0, sticky=sticky, pady=5, columnspan=2)
+
+    link1 = tk.Label(tab3, text='Program GitHub', fg='blue', cursor='hand2')
+    link1.grid(row=4, column=0, sticky=sticky, pady=5, columnspan=2)
+    link1.bind('<Button-1>', lambda e: callback('https://github.com/NelisV/vatspy-geojson'))
+
+    link2 = tk.Label(tab3, text='VAT-Spy Data Project', fg='blue', cursor='hand2')
+    link2.grid(row=5, column=0, sticky=sticky, pady=5, columnspan=2)
+    link2.bind('<Button-1>', lambda e: callback('https://github.com/vatsimnetwork/vatspy-data-project'))
+
+    # mainloop
+    root.mainloop()
