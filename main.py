@@ -244,7 +244,7 @@ if __name__ == "__main__":
     des_text5 = tk.Label(tab4, text=description5)
     des_text5.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=2)
 
-    description6 = 'Development - Alpha 2'
+    description6 = 'Release Version 1.0'
     des_text6 = tk.Label(tab4, text=description6)
     des_text6.grid(row=2, column=0, sticky=sticky, pady=5, columnspan=2)
 
