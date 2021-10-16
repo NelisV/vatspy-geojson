@@ -12,6 +12,8 @@ save_gj_file = None
 save_dat_file = None
 settings = None
 
+# TODO cleanup ununsed functions
+
 
 # file explorer window
 def load_dat():
@@ -96,13 +98,13 @@ def parse_gj():
     try:
         dat_export(load_gj_file, save_dat_file)
         description8 = 'file saved to: ' + save_dat_file
-        des_text8 = tk.Label(tab2, text=description8)
+        des_text8 = tk.Label(tab1, text=description8)
         des_text8.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
 
     except:
         print('parse error')
         description8 = 'Parsing error, check if you used a valid FIRBoundaries geojson file'
-        des_text8 = tk.Label(tab2, text=description8)
+        des_text8 = tk.Label(tab1, text=description8)
         des_text8.grid(row=6, column=0, sticky=sticky, pady=5, columnspan=col_span)
 
 
@@ -201,87 +203,56 @@ if __name__ == "__main__":
     # tab control
     tabControl = ttk.Notebook(root)
     tab1 = ttk.Frame(tabControl)
-    tab2 = ttk.Frame(tabControl)
-    tab3 = ttk.Frame(tabControl)
+    tab4 = ttk.Frame(tabControl)
 
-    tabControl.add(tab1, text='DAT to GeoJSON')
-    tabControl.add(tab2, text='GeoJSON to DAT')
-    tabControl.add(tab3, text='About')
+    tabControl.add(tab1, text='GeoJSON to VAT-Spy')
+    tabControl.add(tab4, text='About')
 
     tabControl.pack(expand=1, fill="both")
 
-    # --tab1--
+    # --tab3--
     tab1.columnconfigure(1, weight=1)
-
-    # load firboundaries.dat file
-    description = 'Browse to a valid VAT-Spy FIRBoundaries.dat file'
-    des_text = tk.Label(tab1, text=description)
-    des_text.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=col_span)
-
-    button_file = tk.Button(tab1, text='Browse', width=10, command=load_dat)
-    button_file.grid(row=2, column=0, sticky=sticky, padx=5, pady=5)
-
-    file_info = tk.Label(tab1, text='No file selected')
-    file_info.grid(row=2, column=1, sticky=sticky, pady=5)
-
-    # select a geojson save location
-    description3 = 'GeoJSON save location'
-    des_text3 = tk.Label(tab1, text=description3)
-    des_text3.grid(row=3, column=0, sticky=sticky, pady=5, columnspan=col_span)
-
-    button_file3 = tk.Button(tab1, text='Save As', width=10, command=save_gj, state=tk.DISABLED)
-    button_file3.grid(row=4, column=0, sticky=sticky, padx=5, pady=5)
-
-    file_info3 = tk.Label(tab1, text='No directory selected')
-    file_info3.grid(row=4, column=1, sticky=sticky, pady=5)
-
-    # parse button
-    button_datimport = tk.Button(tab1, text='Parse', width=10, command=parse_dat, state=tk.DISABLED)
-    button_datimport.grid(row=5, column=0, sticky=sticky, padx=5, pady=5)
-
-    # --tab2--
-    tab2.columnconfigure(1, weight=1)
 
     # load geojson file
     description1 = 'Browse to a valid GeoJSON containing FIR boundary data'
-    des_text1 = tk.Label(tab2, text=description1)
+    des_text1 = tk.Label(tab1, text=description1)
     des_text1.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=col_span)
 
-    button_file2 = tk.Button(tab2, text='Browse', width=10, command=load_gj)
+    button_file2 = tk.Button(tab1, text='Browse', width=10, command=load_gj)
     button_file2.grid(row=2, column=0, sticky=sticky, padx=5, pady=5)
 
-    file_info2 = tk.Label(tab2, text='No file selected')
+    file_info2 = tk.Label(tab1, text='No file selected')
     file_info2.grid(row=2, column=1, sticky=sticky, pady=5)
 
     # select a .dat save location
     description7 = 'FIRBoundaries.dat save location'
-    des_text7 = tk.Label(tab2, text=description7)
+    des_text7 = tk.Label(tab1, text=description7)
     des_text7.grid(row=3, column=0, sticky=sticky, pady=5, columnspan=col_span)
 
-    button_file7 = tk.Button(tab2, text='Save As', width=10, command=save_dat, state=tk.DISABLED)
+    button_file7 = tk.Button(tab1, text='Save As', width=10, command=save_dat, state=tk.DISABLED)
     button_file7.grid(row=4, column=0, sticky=sticky, padx=5, pady=5)
 
-    file_info7 = tk.Label(tab2, text='No directory selected')
+    file_info7 = tk.Label(tab1, text='No directory selected')
     file_info7.grid(row=4, column=1, sticky=sticky, pady=5)
 
     # parse button
-    button_datimport2 = tk.Button(tab2, text='Parse', width=10, command=parse_gj, state=tk.DISABLED)
+    button_datimport2 = tk.Button(tab1, text='Parse', width=10, command=parse_gj, state=tk.DISABLED)
     button_datimport2.grid(row=5, column=0, sticky=sticky, padx=5, pady=5)
 
-    # --tab-- about
+    # --tab4-- about
     description5 = 'VAT-Spy - GeoJSON converter by NelisV'
-    des_text5 = tk.Label(tab3, text=description5)
+    des_text5 = tk.Label(tab4, text=description5)
     des_text5.grid(row=1, column=0, sticky=sticky, pady=5, columnspan=2)
 
     description6 = 'Development - Alpha 2'
-    des_text6 = tk.Label(tab3, text=description6)
+    des_text6 = tk.Label(tab4, text=description6)
     des_text6.grid(row=2, column=0, sticky=sticky, pady=5, columnspan=2)
 
-    link1 = tk.Label(tab3, text='Program GitHub', fg='blue', cursor='hand2')
+    link1 = tk.Label(tab4, text='Program GitHub', fg='blue', cursor='hand2')
     link1.grid(row=4, column=0, sticky=sticky, pady=5, columnspan=2)
     link1.bind('<Button-1>', lambda e: callback('https://github.com/NelisV/vatspy-geojson'))
 
-    link2 = tk.Label(tab3, text='VAT-Spy Data Project', fg='blue', cursor='hand2')
+    link2 = tk.Label(tab4, text='VAT-Spy Data Project', fg='blue', cursor='hand2')
     link2.grid(row=5, column=0, sticky=sticky, pady=5, columnspan=2)
     link2.bind('<Button-1>', lambda e: callback('https://github.com/vatsimnetwork/vatspy-data-project'))
 
